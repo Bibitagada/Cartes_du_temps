@@ -1,0 +1,2043 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Les Cartes du Temps</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #1a1a2e;
+    --surface: #16213e;
+    --card: #0f3460;
+    --accent: #e94560;
+    --accent2: #f5a623;
+    --accent3: #00d4aa;
+    --accent4: #a29bfe;
+    --text: #eaeaea;
+    --text-muted: #a0aec0;
+    --success: #48bb78;
+    --danger: #fc8181;
+    --warning: #f6ad55;
+    --present-color: #00d4aa;
+    --imparfait-color: #a29bfe;
+    --passe-compose-color: #f5a623;
+    --futur-color: #e94560;
+    --radius: 16px;
+    --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at 20% 20%, rgba(233,69,96,0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(0,212,170,0.08) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .screen { display: none; position: relative; z-index: 1; }
+  .screen.active { display: block; }
+
+  /* NAV BAR */
+  .nav-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(22,33,62,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    gap: 12px;
+  }
+
+  .nav-title {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--accent2);
+    flex: 1;
+  }
+
+  .nav-actions { display: flex; gap: 8px; }
+
+  /* BUTTONS */
+  .btn {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 12px 20px;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn:active { transform: scale(0.96); }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 4px 20px rgba(233,69,96,0.4);
+  }
+  .btn-primary:hover { background: #d63851; }
+
+  .btn-secondary {
+    background: rgba(255,255,255,0.08);
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.15); }
+
+  .btn-success {
+    background: var(--success);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(72,187,120,0.3);
+  }
+
+  .btn-warning {
+    background: var(--warning);
+    color: #1a1a2e;
+  }
+
+  .btn-danger {
+    background: var(--danger);
+    color: #fff;
+  }
+
+  .btn-small {
+    font-size: 0.85rem;
+    padding: 8px 14px;
+    border-radius: 10px;
+  }
+
+  .btn-large {
+    font-size: 1.2rem;
+    padding: 16px 32px;
+    border-radius: 20px;
+  }
+
+  .btn-block { width: 100%; justify-content: center; }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+
+  /* HOME SCREEN */
+  #screen-home {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 24px 16px 40px;
+  }
+
+  .home-header {
+    text-align: center;
+    padding: 32px 0 24px;
+  }
+
+  .home-header h1 {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 2.8rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+
+  .home-header .subtitle {
+    color: var(--text-muted);
+    font-size: 1rem;
+  }
+
+  .home-header .emoji-row {
+    font-size: 2rem;
+    margin-bottom: 8px;
+  }
+
+  .section-title {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  input[type="text"], select {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: border-color 0.2s;
+  }
+
+  input[type="text"]:focus, select:focus {
+    outline: none;
+    border-color: var(--accent3);
+  }
+
+  select option { background: #16213e; }
+
+  .radio-group, .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .radio-item, .checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    cursor: pointer;
+    border: 1.5px solid rgba(255,255,255,0.08);
+    transition: all 0.2s;
+  }
+
+  .radio-item:hover, .checkbox-item:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.2);
+  }
+
+  .radio-item.selected, .checkbox-item.checked {
+    border-color: var(--accent3);
+    background: rgba(0,212,170,0.08);
+  }
+
+  input[type="radio"], input[type="checkbox"] {
+    accent-color: var(--accent3);
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+
+  .player-inputs { display: flex; flex-direction: column; gap: 8px; }
+  .player-input-row { display: flex; align-items: center; gap: 12px; }
+  .player-input-row span {
+    font-size: 1.4rem;
+    min-width: 30px;
+  }
+
+  .tense-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .badge-present { background: rgba(0,212,170,0.2); color: var(--present-color); border: 1px solid var(--present-color); }
+  .badge-imparfait { background: rgba(162,155,254,0.2); color: var(--imparfait-color); border: 1px solid var(--imparfait-color); }
+  .badge-passe-compose { background: rgba(245,166,35,0.2); color: var(--passe-compose-color); border: 1px solid var(--passe-compose-color); }
+  .badge-futur { background: rgba(233,69,96,0.2); color: var(--futur-color); border: 1px solid var(--futur-color); }
+
+  /* GAME SCREEN */
+  #screen-game {
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+
+  .game-main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+
+  .subject-display {
+    text-align: center;
+    padding: 24px;
+    background: linear-gradient(135deg, rgba(245,166,35,0.15), rgba(233,69,96,0.15));
+    border: 2px solid rgba(245,166,35,0.3);
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+
+  .subject-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 8px;
+  }
+
+  .subject-word {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .subject-signature {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .timer-bar {
+    height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+
+  .timer-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s linear, background 1s;
+    background: var(--success);
+  }
+
+  .timer-text {
+    text-align: center;
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--accent2);
+    margin-bottom: 12px;
+  }
+
+  .tenses-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .players-grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 640px) {
+    .players-grid.players-2, .players-grid.players-4 {
+      grid-template-columns: 1fr 1fr;
+    }
+    .players-grid.players-3 {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+  }
+
+  .player-zone {
+    background: var(--surface);
+    border: 2px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+
+  .player-zone.posed { border-color: var(--success); }
+  .player-zone.passed { border-color: var(--text-muted); opacity: 0.7; }
+  .player-zone.winner { border-color: var(--accent2); box-shadow: 0 0 20px rgba(245,166,35,0.3); }
+
+  .player-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.04);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .player-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .player-emoji { font-size: 1.4rem; }
+
+  .player-name {
+    font-weight: 800;
+    font-size: 1rem;
+  }
+
+  .player-score {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--accent2);
+  }
+
+  .player-status {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-top: 2px;
+  }
+
+  .status-waiting { background: rgba(255,255,255,0.08); color: var(--text-muted); }
+  .status-posed { background: rgba(72,187,120,0.2); color: var(--success); }
+  .status-passed { background: rgba(160,174,192,0.2); color: var(--text-muted); }
+
+  .player-body { padding: 12px 16px; }
+
+  .hand-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0;
+  }
+
+  .verb-card {
+    background: var(--card);
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-align: center;
+    min-width: 80px;
+  }
+
+  .verb-card:hover {
+    border-color: var(--accent3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,212,170,0.2);
+  }
+
+  .verb-card.selected {
+    border-color: var(--accent3);
+    background: rgba(0,212,170,0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,212,170,0.3);
+  }
+
+  .verb-card.correct {
+    border-color: var(--success);
+    background: rgba(72,187,120,0.15);
+  }
+
+  .verb-card.incorrect {
+    border-color: var(--danger);
+    background: rgba(252,129,129,0.1);
+  }
+
+  .verb-card-tense {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin-top: 2px;
+  }
+
+  .hand-hidden {
+    padding: 16px;
+    text-align: center;
+    color: var(--text-muted);
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  .player-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+  .result-zone {
+    padding: 10px 0;
+  }
+
+  .result-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+  }
+
+  .result-icon { font-size: 1.2rem; flex-shrink: 0; }
+  .result-text { line-height: 1.4; color: var(--text-muted); }
+  .result-text strong { color: var(--text); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .modal-overlay.show { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 28px;
+    max-width: 440px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    animation: modalIn 0.25s ease;
+  }
+
+  @keyframes modalIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .modal h2 {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+  }
+
+  .modal p { color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; }
+
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+  /* TEACHER SCREEN */
+  #screen-teacher {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 14px;
+    padding: 4px;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    border: none;
+    background: transparent;
+  }
+
+  .tab.active {
+    background: var(--card);
+    color: var(--text);
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .data-table th {
+    text-align: left;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.05);
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+  }
+
+  .data-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    vertical-align: middle;
+  }
+
+  .data-table tr:hover td { background: rgba(255,255,255,0.03); }
+
+  textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px;
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    resize: vertical;
+  }
+
+  textarea:focus { outline: none; border-color: var(--accent3); }
+
+  .chip {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: rgba(162,155,254,0.2);
+    color: var(--accent4);
+  }
+
+  .chip.easy { background: rgba(72,187,120,0.2); color: var(--success); }
+  .chip.medium { background: rgba(245,166,35,0.2); color: var(--warning); }
+  .chip.hard { background: rgba(233,69,96,0.2); color: var(--danger); }
+
+  /* WINNER */
+  .winner-screen {
+    text-align: center;
+    padding: 48px 24px;
+  }
+
+  .winner-trophy { font-size: 6rem; margin-bottom: 16px; animation: bounce 1s infinite; }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-16px); }
+  }
+
+  .winner-title {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  .scores-final {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 320px;
+    margin: 24px auto;
+  }
+
+  .score-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 12px;
+    font-weight: 700;
+  }
+
+  .score-row.first {
+    background: rgba(245,166,35,0.15);
+    border: 2px solid var(--accent2);
+  }
+
+  /* Utils */
+  .hidden { display: none !important; }
+  .mt-12 { margin-top: 12px; }
+  .mt-16 { margin-top: 16px; }
+  .mb-12 { margin-bottom: 12px; }
+  .text-center { text-align: center; }
+  .flex { display: flex; }
+  .gap-8 { gap: 8px; }
+  .flex-wrap { flex-wrap: wrap; }
+  .items-center { align-items: center; }
+  .justify-between { justify-content: space-between; }
+
+  .warning-banner {
+    background: rgba(245,166,35,0.15);
+    border: 1px solid var(--accent2);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    color: var(--accent2);
+    margin-bottom: 12px;
+  }
+
+  .pioche-info {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+
+  .pioche-chip {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 4px 12px;
+  }
+
+  .round-header {
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .round-num {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 700;
+  }
+
+  .add-form {
+    display: grid;
+    gap: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .add-form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+  }
+
+  .add-form label { font-size: 0.8rem; margin-bottom: 4px; color: var(--text-muted); }
+
+  .scrollable { max-height: 400px; overflow-y: auto; }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- MODAL CONFIRM -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal">
+    <h2>⚠️ Arrêter la partie ?</h2>
+    <p>Tous les scores seront remis à zéro. Les données (sujets/verbes) seront conservées.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-danger" onclick="confirmStop()">Arrêter</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOME / PARAMETRES -->
+<div id="screen-home" class="screen active">
+  <div class="home-header">
+    <div class="emoji-row">🃏 ⏳ 🎯</div>
+    <h1>Les Cartes du Temps</h1>
+    <p class="subtitle">Conjugaison — CM1 · 2 à 4 joueurs</p>
+  </div>
+
+  <div class="card mb-12">
+    <div class="section-title">👥 Joueurs</div>
+    <div class="form-group">
+      <label>Nombre de joueurs</label>
+      <select id="nb-players" onchange="updatePlayerInputs()">
+        <option value="2">2 joueurs</option>
+        <option value="3">3 joueurs</option>
+        <option value="4">4 joueurs</option>
+      </select>
+    </div>
+    <div id="player-inputs" class="player-inputs"></div>
+  </div>
+
+  <div class="card mb-12">
+    <div class="section-title">⚙️ Règles</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>🏆 Victoire à</label>
+        <select id="win-points">
+          <option value="5">5 points</option>
+          <option value="10">10 points</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>⏱️ Timer (secondes)</label>
+        <select id="timer-duration">
+          <option value="60">60 s</option>
+          <option value="90">90 s</option>
+          <option value="120">120 s</option>
+          <option value="0">Sans timer</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>🎯 Niveau</label>
+      <select id="difficulty">
+        <option value="easy">Facile — 1er groupe, passé composé avec avoir</option>
+        <option value="medium" selected>Moyen — + 2e groupe, quelques 3e</option>
+        <option value="hard">Difficile — 3e groupe, passé composé avec être</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card mb-12">
+    <div class="section-title">🕒 Temps de conjugaison</div>
+    <div class="form-group">
+      <div class="radio-group">
+        <label class="radio-item selected" id="radio-unique-label" onclick="selectTenseMode('unique')">
+          <input type="radio" name="tense-mode" value="unique" id="radio-unique" checked>
+          <span>⚡ Temps unique</span>
+        </label>
+        <label class="radio-item" id="radio-mix-label" onclick="selectTenseMode('mix')">
+          <input type="radio" name="tense-mode" value="mix" id="radio-mix">
+          <span>🎲 Mix personnalisé</span>
+        </label>
+      </div>
+    </div>
+    <div id="tense-unique-panel" class="form-group">
+      <label>Choisir le temps</label>
+      <select id="tense-unique-select">
+        <option value="present">Présent</option>
+        <option value="imparfait">Imparfait</option>
+        <option value="passe-compose">Passé composé</option>
+        <option value="futur">Futur</option>
+      </select>
+    </div>
+    <div id="tense-mix-panel" class="hidden">
+      <label class="mb-12" style="display:block">Sélectionner les temps actifs</label>
+      <div class="checkbox-group">
+        <label class="checkbox-item" id="chk-present-label" onclick="toggleTenseCheck('present')">
+          <input type="checkbox" id="chk-present"> Présent
+        </label>
+        <label class="checkbox-item" id="chk-imparfait-label" onclick="toggleTenseCheck('imparfait')">
+          <input type="checkbox" id="chk-imparfait"> Imparfait
+        </label>
+        <label class="checkbox-item" id="chk-passe-compose-label" onclick="toggleTenseCheck('passe-compose')">
+          <input type="checkbox" id="chk-passe-compose"> Passé composé
+        </label>
+        <label class="checkbox-item" id="chk-futur-label" onclick="toggleTenseCheck('futur')">
+          <input type="checkbox" id="chk-futur"> Futur
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:12px;margin-top:8px">
+    <button class="btn btn-primary btn-large flex-1 btn-block" onclick="startGame()">🎮 Démarrer</button>
+    <button class="btn btn-ghost" style="padding:16px 20px;border-radius:20px;" onclick="goTeacher()">👩‍🏫</button>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="screen-game" class="screen">
+  <div class="nav-bar">
+    <div class="nav-title">🃏 Les Cartes du Temps</div>
+    <div class="nav-actions">
+      <button class="btn btn-ghost btn-small" onclick="goHome()">🏠 Accueil</button>
+      <button class="btn btn-danger btn-small" onclick="askStop()">⏹ Arrêter</button>
+    </div>
+  </div>
+
+  <div class="game-main">
+    <div class="round-header">
+      <span class="round-num" id="round-display"></span>
+    </div>
+
+    <div id="warning-banner" class="warning-banner hidden"></div>
+
+    <div id="subject-display" class="subject-display">
+      <div class="subject-label">Carte Sujet</div>
+      <div class="subject-word" id="subject-word">–</div>
+      <div class="subject-signature" id="subject-sig"></div>
+    </div>
+
+    <div class="tenses-row" id="active-tenses-row"></div>
+
+    <div style="margin-bottom:16px">
+      <div class="timer-text" id="timer-text">⏱ 60s</div>
+      <div class="timer-bar"><div class="timer-fill" id="timer-fill" style="width:100%"></div></div>
+    </div>
+
+    <div class="pioche-info">
+      <span class="pioche-chip">📚 Sujets restants: <span id="pioche-subjects-count">0</span></span>
+      <span class="pioche-chip">🃏 Défausse: <span id="discard-count">0</span></span>
+    </div>
+
+    <div class="players-grid" id="players-grid"></div>
+
+    <div style="margin-top:20px;display:flex;flex-direction:column;gap:12px;align-items:center">
+      <button id="btn-reveal" class="btn btn-success btn-large hidden" onclick="revealAndCorrect()">
+        🔍 Révéler et corriger
+      </button>
+      <button id="btn-next" class="btn btn-primary btn-large hidden" onclick="nextRound()">
+        ➡️ Manche suivante
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- WINNER SCREEN -->
+<div id="screen-winner" class="screen">
+  <div class="nav-bar">
+    <div class="nav-title">🏆 Fin de partie</div>
+    <div class="nav-actions">
+      <button class="btn btn-ghost btn-small" onclick="goHome()">🏠 Accueil</button>
+    </div>
+  </div>
+  <div class="winner-screen">
+    <div class="winner-trophy">🏆</div>
+    <div class="winner-title" id="winner-title">Bravo !</div>
+    <p id="winner-subtitle" style="color:var(--text-muted);margin-bottom:24px"></p>
+    <div class="scores-final" id="scores-final"></div>
+    <button class="btn btn-primary btn-large mt-16" onclick="goHome()">🔁 Nouvelle partie</button>
+  </div>
+</div>
+
+<!-- TEACHER SCREEN -->
+<div id="screen-teacher" class="screen">
+  <div class="nav-bar">
+    <div class="nav-title">👩‍🏫 Mode Enseignant</div>
+    <div class="nav-actions">
+      <button class="btn btn-ghost btn-small" onclick="goHome()">🏠 Accueil</button>
+      <button class="btn btn-danger btn-small" onclick="askStop()">⏹ Arrêter</button>
+    </div>
+  </div>
+  <div id="screen-teacher-inner">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('subjects')">📝 Sujets</button>
+      <button class="tab" onclick="switchTab('verbs')">🔤 Verbes</button>
+      <button class="tab" onclick="switchTab('import-export')">💾 Import/Export</button>
+    </div>
+
+    <div id="tab-subjects" class="tab-content active">
+      <div class="add-form">
+        <div style="font-weight:800;margin-bottom:4px">➕ Ajouter un sujet</div>
+        <div class="add-form-row">
+          <div>
+            <label>Texte</label>
+            <input type="text" id="new-subject-text" placeholder="ex: les enfants">
+          </div>
+          <div>
+            <label>Signature</label>
+            <select id="new-subject-sig">
+              <option value="1s">1s (je)</option>
+              <option value="2s">2s (tu)</option>
+              <option value="3s">3s (il/elle)</option>
+              <option value="1p">1p (nous)</option>
+              <option value="2p">2p (vous)</option>
+              <option value="3p">3p (ils/elles)</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-success btn-small" onclick="addSubject()">Ajouter</button>
+      </div>
+      <div class="scrollable">
+        <table class="data-table">
+          <thead><tr><th>Texte</th><th>Signature</th><th></th></tr></thead>
+          <tbody id="subjects-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-verbs" class="tab-content">
+      <div class="add-form">
+        <div style="font-weight:800;margin-bottom:4px">➕ Ajouter un verbe conjugué</div>
+        <div class="add-form-row">
+          <div>
+            <label>Affichage</label>
+            <input type="text" id="new-verb-display" placeholder="ex: mange">
+          </div>
+          <div>
+            <label>Infinitif</label>
+            <input type="text" id="new-verb-inf" placeholder="ex: manger">
+          </div>
+        </div>
+        <div class="add-form-row">
+          <div>
+            <label>Temps</label>
+            <select id="new-verb-tense">
+              <option value="present">Présent</option>
+              <option value="imparfait">Imparfait</option>
+              <option value="passe-compose">Passé composé</option>
+              <option value="futur">Futur</option>
+            </select>
+          </div>
+          <div>
+            <label>Signature</label>
+            <select id="new-verb-sig">
+              <option value="1s">1s</option>
+              <option value="2s">2s</option>
+              <option value="3s">3s</option>
+              <option value="1p">1p</option>
+              <option value="2p">2p</option>
+              <option value="3p">3p</option>
+            </select>
+          </div>
+          <div>
+            <label>Niveau</label>
+            <select id="new-verb-level">
+              <option value="easy">Facile</option>
+              <option value="medium">Moyen</option>
+              <option value="hard">Difficile</option>
+            </select>
+          </div>
+          <div>
+            <label>Auxiliaire (PC)</label>
+            <select id="new-verb-aux">
+              <option value="">N/A</option>
+              <option value="avoir">avoir</option>
+              <option value="etre">être</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-success btn-small" onclick="addVerb()">Ajouter</button>
+      </div>
+      <div class="scrollable">
+        <table class="data-table">
+          <thead><tr><th>Forme</th><th>Temps</th><th>Sig</th><th>Niveau</th><th></th></tr></thead>
+          <tbody id="verbs-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-import-export" class="tab-content">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <button class="btn btn-secondary" onclick="exportData()">📤 Exporter les données (JSON)</button>
+        <div class="form-group">
+          <label>📥 Importer des données (JSON)</label>
+          <textarea id="import-json" placeholder='{"subjects":[...],"verbs":[...]}'></textarea>
+        </div>
+        <button class="btn btn-success" onclick="importData()">Importer</button>
+        <hr style="border-color:rgba(255,255,255,0.08)">
+        <button class="btn btn-danger" onclick="resetToDefaults()">🔄 Réinitialiser les données par défaut</button>
+        <button class="btn btn-warning" onclick="resetGame()">🔁 Réinitialiser la partie en cours</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==============================================
+// DATA DEFAULTS
+// ==============================================
+
+const EMOJIS = ['🦊','🐸','🐼','🐨','🦁','🐙','🦄','🐲'];
+const TENSE_NAMES = {
+  'present': 'Présent',
+  'imparfait': 'Imparfait',
+  'passe-compose': 'Passé composé',
+  'futur': 'Futur'
+};
+const TENSE_BADGE_CLASS = {
+  'present': 'badge-present',
+  'imparfait': 'badge-imparfait',
+  'passe-compose': 'badge-passe-compose',
+  'futur': 'badge-futur'
+};
+const SIG_LABELS = {
+  '1s': '1ʳᵉ pers. sing. (je)',
+  '2s': '2ᵉ pers. sing. (tu)',
+  '3s': '3ᵉ pers. sing. (il/elle)',
+  '1p': '1ʳᵉ pers. plur. (nous)',
+  '2p': '2ᵉ pers. plur. (vous)',
+  '3p': '3ᵉ pers. plur. (ils/elles)'
+};
+
+const DEFAULT_SUBJECTS = [
+  {id:'s1',text:'je',signature:'1s'},
+  {id:'s2',text:'tu',signature:'2s'},
+  {id:'s3',text:'il',signature:'3s'},
+  {id:'s4',text:'elle',signature:'3s'},
+  {id:'s5',text:'nous',signature:'1p'},
+  {id:'s6',text:'vous',signature:'2p'},
+  {id:'s7',text:'ils',signature:'3p'},
+  {id:'s8',text:'elles',signature:'3p'},
+  {id:'s9',text:'les élèves',signature:'3p'},
+  {id:'s10',text:'les enfants',signature:'3p'},
+  {id:'s11',text:'tout le monde',signature:'3s'},
+  {id:'s12',text:'Paul et Léa',signature:'3p'},
+  {id:'s13',text:'la maîtresse',signature:'3s'},
+  {id:'s14',text:'mon chat',signature:'3s'},
+  {id:'s15',text:'les oiseaux',signature:'3p'},
+  {id:'s16',text:'ma sœur',signature:'3s'},
+  {id:'s17',text:'mes amis',signature:'3p'},
+  {id:'s18',text:'le directeur',signature:'3s'},
+  {id:'s19',text:'la maîtresse et ses élèves',signature:'3p'},
+  {id:'s20',text:'mon frère et moi',signature:'1p'},
+];
+
+// Verb cards: {id, display, tense, signature, levelTag, aux?, infinitive}
+const DEFAULT_VERBS = [
+  // ============ PRÉSENT ============
+  // Facile - 1er groupe
+  {id:'v1',display:'mange',tense:'present',signature:'1s',levelTag:'easy',infinitive:'manger'},
+  {id:'v2',display:'manges',tense:'present',signature:'2s',levelTag:'easy',infinitive:'manger'},
+  {id:'v3',display:'mange',tense:'present',signature:'3s',levelTag:'easy',infinitive:'manger'},
+  {id:'v4',display:'mangeons',tense:'present',signature:'1p',levelTag:'easy',infinitive:'manger'},
+  {id:'v5',display:'mangez',tense:'present',signature:'2p',levelTag:'easy',infinitive:'manger'},
+  {id:'v6',display:'mangent',tense:'present',signature:'3p',levelTag:'easy',infinitive:'manger'},
+  {id:'v7',display:'joue',tense:'present',signature:'1s',levelTag:'easy',infinitive:'jouer'},
+  {id:'v8',display:'joues',tense:'present',signature:'2s',levelTag:'easy',infinitive:'jouer'},
+  {id:'v9',display:'joue',tense:'present',signature:'3s',levelTag:'easy',infinitive:'jouer'},
+  {id:'v10',display:'jouons',tense:'present',signature:'1p',levelTag:'easy',infinitive:'jouer'},
+  {id:'v11',display:'jouez',tense:'present',signature:'2p',levelTag:'easy',infinitive:'jouer'},
+  {id:'v12',display:'jouent',tense:'present',signature:'3p',levelTag:'easy',infinitive:'jouer'},
+  {id:'v13',display:'chante',tense:'present',signature:'1s',levelTag:'easy',infinitive:'chanter'},
+  {id:'v14',display:'chantes',tense:'present',signature:'2s',levelTag:'easy',infinitive:'chanter'},
+  {id:'v15',display:'chante',tense:'present',signature:'3s',levelTag:'easy',infinitive:'chanter'},
+  {id:'v16',display:'chantons',tense:'present',signature:'1p',levelTag:'easy',infinitive:'chanter'},
+  {id:'v17',display:'chantez',tense:'present',signature:'2p',levelTag:'easy',infinitive:'chanter'},
+  {id:'v18',display:'chantent',tense:'present',signature:'3p',levelTag:'easy',infinitive:'chanter'},
+  {id:'v19',display:'aime',tense:'present',signature:'1s',levelTag:'easy',infinitive:'aimer'},
+  {id:'v20',display:'aimes',tense:'present',signature:'2s',levelTag:'easy',infinitive:'aimer'},
+  {id:'v21',display:'aime',tense:'present',signature:'3s',levelTag:'easy',infinitive:'aimer'},
+  {id:'v22',display:'aimons',tense:'present',signature:'1p',levelTag:'easy',infinitive:'aimer'},
+  {id:'v23',display:'aimez',tense:'present',signature:'2p',levelTag:'easy',infinitive:'aimer'},
+  {id:'v24',display:'aiment',tense:'present',signature:'3p',levelTag:'easy',infinitive:'aimer'},
+  // Moyen - 2e groupe
+  {id:'v25',display:'finis',tense:'present',signature:'1s',levelTag:'medium',infinitive:'finir'},
+  {id:'v26',display:'finis',tense:'present',signature:'2s',levelTag:'medium',infinitive:'finir'},
+  {id:'v27',display:'finit',tense:'present',signature:'3s',levelTag:'medium',infinitive:'finir'},
+  {id:'v28',display:'finissons',tense:'present',signature:'1p',levelTag:'medium',infinitive:'finir'},
+  {id:'v29',display:'finissez',tense:'present',signature:'2p',levelTag:'medium',infinitive:'finir'},
+  {id:'v30',display:'finissent',tense:'present',signature:'3p',levelTag:'medium',infinitive:'finir'},
+  {id:'v31',display:'choisis',tense:'present',signature:'1s',levelTag:'medium',infinitive:'choisir'},
+  {id:'v32',display:'choisit',tense:'present',signature:'3s',levelTag:'medium',infinitive:'choisir'},
+  {id:'v33',display:'choisissent',tense:'present',signature:'3p',levelTag:'medium',infinitive:'choisir'},
+  // Difficile - 3e groupe
+  {id:'v34',display:'prends',tense:'present',signature:'1s',levelTag:'hard',infinitive:'prendre'},
+  {id:'v35',display:'prend',tense:'present',signature:'3s',levelTag:'hard',infinitive:'prendre'},
+  {id:'v36',display:'prennent',tense:'present',signature:'3p',levelTag:'hard',infinitive:'prendre'},
+  {id:'v37',display:'viens',tense:'present',signature:'1s',levelTag:'hard',infinitive:'venir'},
+  {id:'v38',display:'vient',tense:'present',signature:'3s',levelTag:'hard',infinitive:'venir'},
+  {id:'v39',display:'viennent',tense:'present',signature:'3p',levelTag:'hard',infinitive:'venir'},
+  {id:'v40',display:'fait',tense:'present',signature:'3s',levelTag:'hard',infinitive:'faire'},
+  {id:'v41',display:'font',tense:'present',signature:'3p',levelTag:'hard',infinitive:'faire'},
+  {id:'v42',display:'va',tense:'present',signature:'3s',levelTag:'hard',infinitive:'aller'},
+  {id:'v43',display:'vont',tense:'present',signature:'3p',levelTag:'hard',infinitive:'aller'},
+
+  // ============ IMPARFAIT ============
+  {id:'v50',display:'mangeais',tense:'imparfait',signature:'1s',levelTag:'easy',infinitive:'manger'},
+  {id:'v51',display:'mangeais',tense:'imparfait',signature:'2s',levelTag:'easy',infinitive:'manger'},
+  {id:'v52',display:'mangeait',tense:'imparfait',signature:'3s',levelTag:'easy',infinitive:'manger'},
+  {id:'v53',display:'mangions',tense:'imparfait',signature:'1p',levelTag:'easy',infinitive:'manger'},
+  {id:'v54',display:'mangiez',tense:'imparfait',signature:'2p',levelTag:'easy',infinitive:'manger'},
+  {id:'v55',display:'mangeaient',tense:'imparfait',signature:'3p',levelTag:'easy',infinitive:'manger'},
+  {id:'v56',display:'jouais',tense:'imparfait',signature:'1s',levelTag:'easy',infinitive:'jouer'},
+  {id:'v57',display:'jouait',tense:'imparfait',signature:'3s',levelTag:'easy',infinitive:'jouer'},
+  {id:'v58',display:'jouaient',tense:'imparfait',signature:'3p',levelTag:'easy',infinitive:'jouer'},
+  {id:'v59',display:'aimais',tense:'imparfait',signature:'1s',levelTag:'easy',infinitive:'aimer'},
+  {id:'v60',display:'aimait',tense:'imparfait',signature:'3s',levelTag:'easy',infinitive:'aimer'},
+  {id:'v61',display:'aimaient',tense:'imparfait',signature:'3p',levelTag:'easy',infinitive:'aimer'},
+  {id:'v62',display:'finissais',tense:'imparfait',signature:'1s',levelTag:'medium',infinitive:'finir'},
+  {id:'v63',display:'finissait',tense:'imparfait',signature:'3s',levelTag:'medium',infinitive:'finir'},
+  {id:'v64',display:'finissaient',tense:'imparfait',signature:'3p',levelTag:'medium',infinitive:'finir'},
+  {id:'v65',display:'prenais',tense:'imparfait',signature:'1s',levelTag:'hard',infinitive:'prendre'},
+  {id:'v66',display:'prenait',tense:'imparfait',signature:'3s',levelTag:'hard',infinitive:'prendre'},
+  {id:'v67',display:'prenaient',tense:'imparfait',signature:'3p',levelTag:'hard',infinitive:'prendre'},
+  {id:'v68',display:'faisais',tense:'imparfait',signature:'1s',levelTag:'hard',infinitive:'faire'},
+  {id:'v69',display:'faisait',tense:'imparfait',signature:'3s',levelTag:'hard',infinitive:'faire'},
+  {id:'v70',display:'faisaient',tense:'imparfait',signature:'3p',levelTag:'hard',infinitive:'faire'},
+
+  // ============ PASSÉ COMPOSÉ ============
+  // avec avoir - facile
+  {id:'v80',display:'ai mangé',tense:'passe-compose',signature:'1s',levelTag:'easy',infinitive:'manger',aux:'avoir'},
+  {id:'v81',display:'as mangé',tense:'passe-compose',signature:'2s',levelTag:'easy',infinitive:'manger',aux:'avoir'},
+  {id:'v82',display:'a mangé',tense:'passe-compose',signature:'3s',levelTag:'easy',infinitive:'manger',aux:'avoir'},
+  {id:'v83',display:'avons mangé',tense:'passe-compose',signature:'1p',levelTag:'easy',infinitive:'manger',aux:'avoir'},
+  {id:'v84',display:'avez mangé',tense:'passe-compose',signature:'2p',levelTag:'easy',infinitive:'manger',aux:'avoir'},
+  {id:'v85',display:'ont mangé',tense:'passe-compose',signature:'3p',levelTag:'easy',infinitive:'manger',aux:'avoir'},
+  {id:'v86',display:'ai joué',tense:'passe-compose',signature:'1s',levelTag:'easy',infinitive:'jouer',aux:'avoir'},
+  {id:'v87',display:'as joué',tense:'passe-compose',signature:'2s',levelTag:'easy',infinitive:'jouer',aux:'avoir'},
+  {id:'v88',display:'a joué',tense:'passe-compose',signature:'3s',levelTag:'easy',infinitive:'jouer',aux:'avoir'},
+  {id:'v89',display:'ont joué',tense:'passe-compose',signature:'3p',levelTag:'easy',infinitive:'jouer',aux:'avoir'},
+  {id:'v90',display:'ai chanté',tense:'passe-compose',signature:'1s',levelTag:'easy',infinitive:'chanter',aux:'avoir'},
+  {id:'v91',display:'a chanté',tense:'passe-compose',signature:'3s',levelTag:'easy',infinitive:'chanter',aux:'avoir'},
+  {id:'v92',display:'ont chanté',tense:'passe-compose',signature:'3p',levelTag:'easy',infinitive:'chanter',aux:'avoir'},
+  // avec avoir - moyen (2e groupe)
+  {id:'v93',display:'ai fini',tense:'passe-compose',signature:'1s',levelTag:'medium',infinitive:'finir',aux:'avoir'},
+  {id:'v94',display:'a fini',tense:'passe-compose',signature:'3s',levelTag:'medium',infinitive:'finir',aux:'avoir'},
+  {id:'v95',display:'ont fini',tense:'passe-compose',signature:'3p',levelTag:'medium',infinitive:'finir',aux:'avoir'},
+  {id:'v96',display:'ai choisi',tense:'passe-compose',signature:'1s',levelTag:'medium',infinitive:'choisir',aux:'avoir'},
+  {id:'v97',display:'a choisi',tense:'passe-compose',signature:'3s',levelTag:'medium',infinitive:'choisir',aux:'avoir'},
+  // avec avoir - difficile (3e groupe)
+  {id:'v98',display:'ai pris',tense:'passe-compose',signature:'1s',levelTag:'hard',infinitive:'prendre',aux:'avoir'},
+  {id:'v99',display:'a pris',tense:'passe-compose',signature:'3s',levelTag:'hard',infinitive:'prendre',aux:'avoir'},
+  {id:'v100',display:'ont pris',tense:'passe-compose',signature:'3p',levelTag:'hard',infinitive:'prendre',aux:'avoir'},
+  {id:'v101',display:'ai fait',tense:'passe-compose',signature:'1s',levelTag:'hard',infinitive:'faire',aux:'avoir'},
+  {id:'v102',display:'a fait',tense:'passe-compose',signature:'3s',levelTag:'hard',infinitive:'faire',aux:'avoir'},
+  // avec être - difficile
+  {id:'v103',display:'est allé',tense:'passe-compose',signature:'3s',levelTag:'hard',infinitive:'aller',aux:'etre',auxGender:'m'},
+  {id:'v104',display:'est allée',tense:'passe-compose',signature:'3s',levelTag:'hard',infinitive:'aller',aux:'etre',auxGender:'f'},
+  {id:'v105',display:'sont allés',tense:'passe-compose',signature:'3p',levelTag:'hard',infinitive:'aller',aux:'etre',auxGender:'m'},
+  {id:'v106',display:'sont allées',tense:'passe-compose',signature:'3p',levelTag:'hard',infinitive:'aller',aux:'etre',auxGender:'f'},
+  {id:'v107',display:'est parti',tense:'passe-compose',signature:'3s',levelTag:'hard',infinitive:'partir',aux:'etre',auxGender:'m'},
+  {id:'v108',display:'est partie',tense:'passe-compose',signature:'3s',levelTag:'hard',infinitive:'partir',aux:'etre',auxGender:'f'},
+  {id:'v109',display:'sont partis',tense:'passe-compose',signature:'3p',levelTag:'hard',infinitive:'partir',aux:'etre',auxGender:'m'},
+  {id:'v110',display:'sont parties',tense:'passe-compose',signature:'3p',levelTag:'hard',infinitive:'partir',aux:'etre',auxGender:'f'},
+  {id:'v111',display:'suis venu',tense:'passe-compose',signature:'1s',levelTag:'hard',infinitive:'venir',aux:'etre',auxGender:'m'},
+  {id:'v112',display:'suis venue',tense:'passe-compose',signature:'1s',levelTag:'hard',infinitive:'venir',aux:'etre',auxGender:'f'},
+  {id:'v113',display:'est venu',tense:'passe-compose',signature:'3s',levelTag:'hard',infinitive:'venir',aux:'etre',auxGender:'m'},
+  {id:'v114',display:'est venue',tense:'passe-compose',signature:'3s',levelTag:'hard',infinitive:'venir',aux:'etre',auxGender:'f'},
+  {id:'v115',display:'sont venus',tense:'passe-compose',signature:'3p',levelTag:'hard',infinitive:'venir',aux:'etre',auxGender:'m'},
+  {id:'v116',display:'sont venues',tense:'passe-compose',signature:'3p',levelTag:'hard',infinitive:'venir',aux:'etre',auxGender:'f'},
+
+  // ============ FUTUR ============
+  {id:'v120',display:'mangerai',tense:'futur',signature:'1s',levelTag:'easy',infinitive:'manger'},
+  {id:'v121',display:'mangeras',tense:'futur',signature:'2s',levelTag:'easy',infinitive:'manger'},
+  {id:'v122',display:'mangera',tense:'futur',signature:'3s',levelTag:'easy',infinitive:'manger'},
+  {id:'v123',display:'mangerons',tense:'futur',signature:'1p',levelTag:'easy',infinitive:'manger'},
+  {id:'v124',display:'mangerez',tense:'futur',signature:'2p',levelTag:'easy',infinitive:'manger'},
+  {id:'v125',display:'mangeront',tense:'futur',signature:'3p',levelTag:'easy',infinitive:'manger'},
+  {id:'v126',display:'jouerai',tense:'futur',signature:'1s',levelTag:'easy',infinitive:'jouer'},
+  {id:'v127',display:'jouera',tense:'futur',signature:'3s',levelTag:'easy',infinitive:'jouer'},
+  {id:'v128',display:'joueront',tense:'futur',signature:'3p',levelTag:'easy',infinitive:'jouer'},
+  {id:'v129',display:'chanterai',tense:'futur',signature:'1s',levelTag:'easy',infinitive:'chanter'},
+  {id:'v130',display:'chantera',tense:'futur',signature:'3s',levelTag:'easy',infinitive:'chanter'},
+  {id:'v131',display:'chanteront',tense:'futur',signature:'3p',levelTag:'easy',infinitive:'chanter'},
+  {id:'v132',display:'finirai',tense:'futur',signature:'1s',levelTag:'medium',infinitive:'finir'},
+  {id:'v133',display:'finira',tense:'futur',signature:'3s',levelTag:'medium',infinitive:'finir'},
+  {id:'v134',display:'finiront',tense:'futur',signature:'3p',levelTag:'medium',infinitive:'finir'},
+  {id:'v135',display:'choisirai',tense:'futur',signature:'1s',levelTag:'medium',infinitive:'choisir'},
+  {id:'v136',display:'choisira',tense:'futur',signature:'3s',levelTag:'medium',infinitive:'choisir'},
+  {id:'v137',display:'prendrai',tense:'futur',signature:'1s',levelTag:'hard',infinitive:'prendre'},
+  {id:'v138',display:'prendra',tense:'futur',signature:'3s',levelTag:'hard',infinitive:'prendre'},
+  {id:'v139',display:'prendront',tense:'futur',signature:'3p',levelTag:'hard',infinitive:'prendre'},
+  {id:'v140',display:'ferai',tense:'futur',signature:'1s',levelTag:'hard',infinitive:'faire'},
+  {id:'v141',display:'fera',tense:'futur',signature:'3s',levelTag:'hard',infinitive:'faire'},
+  {id:'v142',display:'feront',tense:'futur',signature:'3p',levelTag:'hard',infinitive:'faire'},
+  {id:'v143',display:'irai',tense:'futur',signature:'1s',levelTag:'hard',infinitive:'aller'},
+  {id:'v144',display:'ira',tense:'futur',signature:'3s',levelTag:'hard',infinitive:'aller'},
+  {id:'v145',display:'iront',tense:'futur',signature:'3p',levelTag:'hard',infinitive:'aller'},
+  {id:'v146',display:'viendrai',tense:'futur',signature:'1s',levelTag:'hard',infinitive:'venir'},
+  {id:'v147',display:'viendra',tense:'futur',signature:'3s',levelTag:'hard',infinitive:'venir'},
+  {id:'v148',display:'viendront',tense:'futur',signature:'3p',levelTag:'hard',infinitive:'venir'},
+];
+
+// ==============================================
+// STATE
+// ==============================================
+let DATA = { subjects: [], verbs: [] };
+let GAME = null;
+let timerInterval = null;
+
+// ==============================================
+// STORAGE
+// ==============================================
+function saveData() {
+  localStorage.setItem('cartes_data', JSON.stringify(DATA));
+}
+
+function loadData() {
+  const raw = localStorage.getItem('cartes_data');
+  if (raw) {
+    try { DATA = JSON.parse(raw); } catch(e) { DATA = getDefaultData(); }
+  } else {
+    DATA = getDefaultData();
+  }
+}
+
+function getDefaultData() {
+  return {
+    subjects: JSON.parse(JSON.stringify(DEFAULT_SUBJECTS)),
+    verbs: JSON.parse(JSON.stringify(DEFAULT_VERBS))
+  };
+}
+
+function saveGame() {
+  if (GAME) localStorage.setItem('cartes_game', JSON.stringify(GAME));
+  else localStorage.removeItem('cartes_game');
+}
+
+function loadGame() {
+  const raw = localStorage.getItem('cartes_game');
+  if (raw) {
+    try { GAME = JSON.parse(raw); } catch(e) { GAME = null; }
+  }
+}
+
+function saveParams(params) {
+  localStorage.setItem('cartes_params', JSON.stringify(params));
+}
+
+function loadParams() {
+  const raw = localStorage.getItem('cartes_params');
+  if (raw) {
+    try { return JSON.parse(raw); } catch(e) {}
+  }
+  return null;
+}
+
+// ==============================================
+// INIT
+// ==============================================
+function init() {
+  loadData();
+  loadGame();
+  updatePlayerInputs();
+  restoreParams();
+  renderTeacherTables();
+
+  if (GAME && GAME.phase !== 'ended') {
+    // offer to resume? For simplicity, just render game
+    showScreen('game');
+    renderGame();
+  }
+}
+
+function restoreParams() {
+  const p = loadParams();
+  if (!p) return;
+  if (p.nbPlayers) document.getElementById('nb-players').value = p.nbPlayers;
+  updatePlayerInputs();
+  if (p.playerNames) {
+    p.playerNames.forEach((name, i) => {
+      const el = document.getElementById(`player-name-${i}`);
+      if (el) el.value = name;
+    });
+  }
+  if (p.winPoints) document.getElementById('win-points').value = p.winPoints;
+  if (p.timerDuration !== undefined) document.getElementById('timer-duration').value = p.timerDuration;
+  if (p.difficulty) document.getElementById('difficulty').value = p.difficulty;
+  if (p.tenseMode) {
+    selectTenseMode(p.tenseMode);
+    if (p.tenseMode === 'unique' && p.tenseUnique) {
+      document.getElementById('tense-unique-select').value = p.tenseUnique;
+    }
+    if (p.tenseMode === 'mix' && p.tenseMix) {
+      p.tenseMix.forEach(t => {
+        const el = document.getElementById(`chk-${t}`);
+        if (el) { el.checked = true; document.getElementById(`chk-${t}-label`).classList.add('checked'); }
+      });
+    }
+  }
+}
+
+// ==============================================
+// UI HELPERS
+// ==============================================
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(`screen-${name}`).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function updatePlayerInputs() {
+  const nb = parseInt(document.getElementById('nb-players').value);
+  const container = document.getElementById('player-inputs');
+  container.innerHTML = '';
+  for (let i = 0; i < nb; i++) {
+    container.innerHTML += `
+      <div class="player-input-row">
+        <span>${EMOJIS[i]}</span>
+        <input type="text" id="player-name-${i}" placeholder="Joueur ${i+1}" value="Joueur ${i+1}" style="flex:1">
+      </div>`;
+  }
+}
+
+function selectTenseMode(mode) {
+  document.getElementById('tense-unique-panel').classList.toggle('hidden', mode !== 'unique');
+  document.getElementById('tense-mix-panel').classList.toggle('hidden', mode !== 'mix');
+  document.getElementById('radio-unique-label').classList.toggle('selected', mode === 'unique');
+  document.getElementById('radio-mix-label').classList.toggle('selected', mode === 'mix');
+  document.getElementById('radio-unique').checked = mode === 'unique';
+  document.getElementById('radio-mix').checked = mode === 'mix';
+}
+
+function toggleTenseCheck(tense) {
+  const el = document.getElementById(`chk-${tense}`);
+  el.checked = !el.checked;
+  document.getElementById(`chk-${tense}-label`).classList.toggle('checked', el.checked);
+}
+
+function getActiveTenses() {
+  const mode = document.querySelector('input[name="tense-mode"]:checked').value;
+  if (mode === 'unique') {
+    return [document.getElementById('tense-unique-select').value];
+  } else {
+    const tenses = ['present','imparfait','passe-compose','futur'];
+    return tenses.filter(t => document.getElementById(`chk-${t}`).checked);
+  }
+}
+
+function getHandSize(activeTensesCount) {
+  if (activeTensesCount === 1) return 5;
+  if (activeTensesCount <= 3) return 4;
+  return 3;
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ==============================================
+// NAVIGATION
+// ==============================================
+function goHome() {
+  clearTimer();
+  showScreen('home');
+}
+
+function goTeacher() {
+  showScreen('teacher');
+  renderTeacherTables();
+}
+
+function askStop() {
+  document.getElementById('modal-confirm').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('modal-confirm').classList.remove('show');
+}
+
+function confirmStop() {
+  clearTimer();
+  GAME = null;
+  saveGame();
+  closeModal();
+  showScreen('home');
+}
+
+// ==============================================
+// GAME LOGIC
+// ==============================================
+function startGame() {
+  const nb = parseInt(document.getElementById('nb-players').value);
+  const activeTenses = getActiveTenses();
+  if (activeTenses.length === 0) {
+    alert('Sélectionnez au moins un temps !');
+    return;
+  }
+  const difficulty = document.getElementById('difficulty').value;
+  const winPoints = parseInt(document.getElementById('win-points').value);
+  const timerDuration = parseInt(document.getElementById('timer-duration').value);
+
+  const playerNames = [];
+  for (let i = 0; i < nb; i++) {
+    const el = document.getElementById(`player-name-${i}`);
+    playerNames.push(el ? el.value || `Joueur ${i+1}` : `Joueur ${i+1}`);
+  }
+
+  // Save params
+  saveParams({ nbPlayers: nb, playerNames, winPoints, timerDuration, difficulty,
+    tenseMode: document.querySelector('input[name="tense-mode"]:checked').value,
+    tenseUnique: document.getElementById('tense-unique-select').value,
+    tenseMix: ['present','imparfait','passe-compose','futur'].filter(t => document.getElementById(`chk-${t}`).checked)
+  });
+
+  // Build verb deck
+  const handSize = getHandSize(activeTenses.length);
+  const levelOrder = ['easy','medium','hard'];
+  const diffIdx = levelOrder.indexOf(difficulty);
+  const allowedLevels = levelOrder.slice(0, diffIdx + 1);
+
+  let verbDeck = DATA.verbs.filter(v =>
+    activeTenses.includes(v.tense) && allowedLevels.includes(v.levelTag)
+  );
+
+  // Fallback if too small
+  const minNeeded = nb * handSize + 10;
+  let warningMsg = null;
+  if (verbDeck.length < minNeeded) {
+    verbDeck = DATA.verbs.filter(v => activeTenses.includes(v.tense));
+    warningMsg = `⚠️ Paquet trop petit pour le niveau "${difficulty}" — extension aux autres niveaux.`;
+  }
+
+  verbDeck = shuffle(verbDeck);
+
+  const players = playerNames.map((name, i) => ({
+    id: i,
+    name,
+    emoji: EMOJIS[i],
+    score: 0,
+    hand: [],
+    selectedCardId: null,
+    posed: false,
+    passed: false,
+    handVisible: true,
+    lastResult: null
+  }));
+
+  // Distribute initial hands
+  verbDeck = distributeHands(players, verbDeck, handSize);
+
+  // Build subject deck
+  const subjectDeck = shuffle([...DATA.subjects]);
+  const subjectDiscard = [];
+
+  GAME = {
+    phase: 'playing', // playing | revealed | ended
+    players,
+    activeTenses,
+    difficulty,
+    winPoints,
+    timerDuration,
+    handSize,
+    verbDeck,
+    verbDiscard: [],
+    subjectDeck,
+    subjectDiscard,
+    currentSubject: null,
+    round: 1,
+    warningMsg,
+    timerLeft: timerDuration || null
+  };
+
+  // Draw first subject
+  drawSubject();
+  saveGame();
+  showScreen('game');
+  renderGame();
+  if (timerDuration > 0) startTimer();
+}
+
+function distributeHands(players, deck, handSize) {
+  players.forEach(p => {
+    while (p.hand.length < handSize && deck.length > 0) {
+      p.hand.push(deck.shift());
+    }
+  });
+  return deck;
+}
+
+function drawSubject() {
+  if (GAME.subjectDeck.length === 0) {
+    // Recycle discard
+    GAME.subjectDeck = shuffle([...GAME.subjectDiscard]);
+    GAME.subjectDiscard = [];
+  }
+  if (GAME.subjectDeck.length > 0) {
+    GAME.currentSubject = GAME.subjectDeck.shift();
+  }
+}
+
+function startTimer() {
+  clearTimer();
+  if (!GAME || GAME.timerDuration === 0) return;
+  GAME.timerLeft = GAME.timerDuration;
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    if (!GAME) { clearInterval(timerInterval); return; }
+    GAME.timerLeft--;
+    saveGame();
+    updateTimerDisplay();
+    if (GAME.timerLeft <= 0) {
+      clearInterval(timerInterval);
+      if (GAME.phase === 'playing') {
+        revealAndCorrect();
+      }
+    }
+  }, 1000);
+}
+
+function clearTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+}
+
+function updateTimerDisplay() {
+  if (!GAME) return;
+  const el = document.getElementById('timer-text');
+  const fillEl = document.getElementById('timer-fill');
+  if (!el || !fillEl) return;
+  if (GAME.timerDuration === 0) {
+    el.textContent = '⏱ Sans limite';
+    fillEl.style.width = '100%';
+    return;
+  }
+  const t = Math.max(0, GAME.timerLeft);
+  el.textContent = `⏱ ${t}s`;
+  const pct = Math.max(0, (t / GAME.timerDuration) * 100);
+  fillEl.style.width = pct + '%';
+  if (pct > 50) fillEl.style.background = 'var(--success)';
+  else if (pct > 20) fillEl.style.background = 'var(--warning)';
+  else fillEl.style.background = 'var(--danger)';
+}
+
+function checkRevealReady() {
+  if (!GAME || GAME.phase !== 'playing') return;
+  const allDone = GAME.players.every(p => p.posed || p.passed);
+  const btn = document.getElementById('btn-reveal');
+  if (btn) btn.classList.toggle('hidden', !allDone);
+}
+
+function selectCard(playerId, cardId) {
+  if (!GAME || GAME.phase !== 'playing') return;
+  const p = GAME.players[playerId];
+  if (p.posed || p.passed) return;
+  p.selectedCardId = (p.selectedCardId === cardId) ? null : cardId;
+  saveGame();
+  renderPlayerZone(playerId);
+}
+
+function poseCard(playerId) {
+  if (!GAME || GAME.phase !== 'playing') return;
+  const p = GAME.players[playerId];
+  if (!p.selectedCardId || p.posed || p.passed) return;
+  p.posed = true;
+  saveGame();
+  renderPlayerZone(playerId);
+  checkRevealReady();
+}
+
+function passRound(playerId) {
+  if (!GAME || GAME.phase !== 'playing') return;
+  const p = GAME.players[playerId];
+  if (p.posed || p.passed) return;
+  p.passed = true;
+  p.selectedCardId = null;
+  saveGame();
+  renderPlayerZone(playerId);
+  checkRevealReady();
+}
+
+function revealAndCorrect() {
+  if (!GAME || GAME.phase !== 'playing') return;
+  clearTimer();
+  GAME.phase = 'revealed';
+
+  // Mark non-posed as passed
+  GAME.players.forEach(p => { if (!p.posed && !p.passed) p.passed = true; });
+
+  const subj = GAME.currentSubject;
+  const allPassed = GAME.players.every(p => p.passed);
+
+  GAME.players.forEach(p => {
+    if (p.passed) {
+      p.lastResult = { correct: false, reason: 'passed', cardPlayed: null };
+      return;
+    }
+    const card = p.hand.find(c => c.id === p.selectedCardId);
+    if (!card) {
+      p.lastResult = { correct: false, reason: 'passed', cardPlayed: null };
+      return;
+    }
+    const sigMatch = card.signature === subj.signature;
+    const tenseMatch = GAME.activeTenses.includes(card.tense);
+    const correct = sigMatch && tenseMatch;
+    let reason = '';
+    if (correct) {
+      reason = buildCorrectHint(card, subj);
+      p.score++;
+    } else if (!sigMatch) {
+      reason = `Mauvaise personne/nombre : le sujet est ${SIG_LABELS[subj.signature]}, ta carte est ${SIG_LABELS[card.signature]}.`;
+    } else if (!tenseMatch) {
+      const tensesStr = GAME.activeTenses.map(t => TENSE_NAMES[t]).join(', ');
+      reason = `Mauvais temps : les temps du jeu sont ${tensesStr}. Ta carte est au ${TENSE_NAMES[card.tense]}.`;
+    }
+    p.lastResult = { correct, reason, cardPlayed: card };
+
+    // Defausse verb card
+    p.hand = p.hand.filter(c => c.id !== p.selectedCardId);
+    GAME.verbDiscard.push(card);
+  });
+
+  // Defausse subject card
+  if (subj) GAME.subjectDiscard.push(subj);
+
+  // If all passed: no points, just draw new subject
+  if (allPassed) {
+    GAME.players.forEach(p => p.lastResult = { correct: false, reason: 'Personne n\'a joué, la manche est annulée.', cardPlayed: null });
+  }
+
+  saveGame();
+  renderGame();
+
+  // Check winner
+  const winner = GAME.players.find(p => p.score >= GAME.winPoints);
+  if (winner) {
+    setTimeout(() => showWinner(), 1200);
+  }
+}
+
+function buildCorrectHint(card, subj) {
+  let hint = `✓ "${card.display}" s'accorde bien avec "${subj.text}" (${SIG_LABELS[subj.signature]}).`;
+  if (card.tense === 'passe-compose') {
+    if (card.aux === 'avoir') hint += ' Passé composé : auxiliaire avoir au présent + participe passé.';
+    else if (card.aux === 'etre') hint += ' Passé composé avec être : auxiliaire être au présent + participe passé accordé avec le sujet.';
+  }
+  if (card.tense === 'imparfait') hint += ' Imparfait : terminaisons -ais, -ais, -ait, -ions, -iez, -aient.';
+  if (card.tense === 'futur') hint += ' Futur : on ajoute les terminaisons -ai, -as, -a, -ons, -ez, -ont à l\'infinitif.';
+  return hint;
+}
+
+function nextRound() {
+  if (!GAME) return;
+  GAME.phase = 'playing';
+  GAME.round++;
+
+  // Replenish hands
+  // Recycle verb discard if needed
+  if (GAME.verbDeck.length < GAME.players.length) {
+    GAME.verbDeck = shuffle([...GAME.verbDeck, ...GAME.verbDiscard]);
+    GAME.verbDiscard = [];
+  }
+
+  GAME.players.forEach(p => {
+    p.posed = false;
+    p.passed = false;
+    p.selectedCardId = null;
+    p.lastResult = null;
+    while (p.hand.length < GAME.handSize && GAME.verbDeck.length > 0) {
+      p.hand.push(GAME.verbDeck.shift());
+    }
+  });
+
+  drawSubject();
+  GAME.timerLeft = GAME.timerDuration;
+  saveGame();
+  renderGame();
+  if (GAME.timerDuration > 0) startTimer();
+}
+
+function showWinner() {
+  clearTimer();
+  GAME.phase = 'ended';
+  saveGame();
+  const sorted = [...GAME.players].sort((a,b) => b.score - a.score);
+  document.getElementById('winner-title').textContent = `${sorted[0].emoji} ${sorted[0].name} gagne !`;
+  document.getElementById('winner-subtitle').textContent = `Félicitations pour ${sorted[0].score} points !`;
+  const cont = document.getElementById('scores-final');
+  cont.innerHTML = sorted.map((p,i) => `
+    <div class="score-row ${i===0?'first':''}">
+      <span>${p.emoji} ${p.name}</span>
+      <span style="font-family:'Baloo 2',sans-serif;font-size:1.4rem;font-weight:800;color:var(--accent2)">${p.score} pts</span>
+    </div>`).join('');
+  showScreen('winner');
+}
+
+// ==============================================
+// RENDER
+// ==============================================
+function renderGame() {
+  if (!GAME) return;
+  // Round
+  document.getElementById('round-display').textContent = `Manche ${GAME.round}`;
+
+  // Warning
+  const wb = document.getElementById('warning-banner');
+  if (GAME.warningMsg) { wb.textContent = GAME.warningMsg; wb.classList.remove('hidden'); }
+  else wb.classList.add('hidden');
+
+  // Subject
+  if (GAME.currentSubject) {
+    document.getElementById('subject-word').textContent = GAME.currentSubject.text;
+    document.getElementById('subject-sig').textContent = SIG_LABELS[GAME.currentSubject.signature];
+  }
+
+  // Tenses badges
+  const tensesRow = document.getElementById('active-tenses-row');
+  tensesRow.innerHTML = GAME.activeTenses.map(t =>
+    `<span class="tense-badge ${TENSE_BADGE_CLASS[t]}">${TENSE_NAMES[t]}</span>`
+  ).join('');
+
+  // Pioche counts
+  document.getElementById('pioche-subjects-count').textContent = GAME.subjectDeck.length;
+  document.getElementById('discard-count').textContent = GAME.verbDiscard.length;
+
+  // Timer
+  updateTimerDisplay();
+
+  // Players grid
+  const grid = document.getElementById('players-grid');
+  grid.className = `players-grid players-${GAME.players.length}`;
+  grid.innerHTML = '';
+  GAME.players.forEach(p => {
+    const zone = document.createElement('div');
+    zone.id = `player-zone-${p.id}`;
+    zone.className = 'player-zone';
+    grid.appendChild(zone);
+    renderPlayerZone(p.id);
+  });
+
+  // Buttons
+  const allDone = GAME.players.every(p => p.posed || p.passed);
+  document.getElementById('btn-reveal').classList.toggle('hidden', !allDone || GAME.phase !== 'playing');
+  document.getElementById('btn-next').classList.toggle('hidden', GAME.phase !== 'revealed');
+}
+
+function renderPlayerZone(playerId) {
+  const p = GAME.players[playerId];
+  const zone = document.getElementById(`player-zone-${p.id}`);
+  if (!zone) return;
+
+  zone.className = `player-zone ${p.posed ? 'posed' : ''} ${p.passed ? 'passed' : ''}`;
+
+  let statusHtml = '';
+  if (GAME.phase === 'playing') {
+    if (p.posed) statusHtml = `<span class="player-status status-posed">✓ Posé</span>`;
+    else if (p.passed) statusHtml = `<span class="player-status status-passed">↩ Passé</span>`;
+    else statusHtml = `<span class="player-status status-waiting">En attente…</span>`;
+  }
+
+  let handHtml = '';
+  if (GAME.phase === 'playing' || GAME.phase === 'revealed') {
+    if (p.handVisible && GAME.phase === 'playing' && !p.posed && !p.passed) {
+      handHtml = `<div class="hand-cards">${p.hand.map(card => `
+        <div class="verb-card ${p.selectedCardId === card.id ? 'selected' : ''}"
+             onclick="selectCard(${p.id}, '${card.id}')">
+          ${card.display}
+          <div class="verb-card-tense">${TENSE_NAMES[card.tense]}</div>
+        </div>`).join('')}</div>`;
+    } else if (GAME.phase === 'revealed') {
+      if (p.passed && !p.lastResult?.cardPlayed) {
+        handHtml = `<div class="hand-hidden">↩ A passé cette manche.</div>`;
+      } else if (p.lastResult?.cardPlayed) {
+        const card = p.lastResult.cardPlayed;
+        const cls = p.lastResult.correct ? 'correct' : 'incorrect';
+        handHtml = `<div class="hand-cards">
+          <div class="verb-card ${cls}">${card.display}<div class="verb-card-tense">${TENSE_NAMES[card.tense]}</div></div>
+        </div>`;
+      }
+    } else if (p.posed) {
+      handHtml = `<div class="hand-hidden">🙈 Carte posée face cachée</div>`;
+    } else if (!p.handVisible) {
+      handHtml = `<div class="hand-hidden">Main masquée</div>`;
+    } else {
+      handHtml = `<div class="hand-cards">${p.hand.map(card => `
+        <div class="verb-card ${p.selectedCardId === card.id ? 'selected' : ''}"
+             onclick="selectCard(${p.id}, '${card.id}')">
+          ${card.display}
+          <div class="verb-card-tense">${TENSE_NAMES[card.tense]}</div>
+        </div>`).join('')}</div>`;
+    }
+  }
+
+  let actionsHtml = '';
+  if (GAME.phase === 'playing' && !p.posed && !p.passed) {
+    actionsHtml = `<div class="player-actions">
+      <button class="btn btn-success btn-small" onclick="poseCard(${p.id})" ${p.selectedCardId ? '' : 'disabled style="opacity:0.4"'}>
+        🃏 Poser
+      </button>
+      <button class="btn btn-ghost btn-small" onclick="passRound(${p.id})">↩ Passer</button>
+      <button class="btn btn-ghost btn-small" onclick="toggleHand(${p.id})">
+        ${p.handVisible ? '🙈 Masquer' : '👁 Voir main'}
+      </button>
+    </div>`;
+  }
+
+  let resultHtml = '';
+  if (GAME.phase === 'revealed' && p.lastResult) {
+    const r = p.lastResult;
+    if (r.reason) {
+      const icon = r.correct ? '✅' : (r.reason.includes('annulée') || r.reason.includes('Personne') ? '⏭' : '❌');
+      resultHtml = `<div class="result-zone">
+        <div class="result-item">
+          <span class="result-icon">${icon}</span>
+          <span class="result-text">${r.reason}</span>
+        </div>
+      </div>`;
+    }
+  }
+
+  zone.innerHTML = `
+    <div class="player-header">
+      <div>
+        <div class="player-name-row">
+          <span class="player-emoji">${p.emoji}</span>
+          <span class="player-name">${p.name}</span>
+        </div>
+        ${statusHtml}
+      </div>
+      <div class="player-score">${p.score} pts</div>
+    </div>
+    <div class="player-body">
+      ${handHtml}
+      ${actionsHtml}
+      ${resultHtml}
+    </div>`;
+}
+
+function toggleHand(playerId) {
+  const p = GAME.players[playerId];
+  p.handVisible = !p.handVisible;
+  saveGame();
+  renderPlayerZone(playerId);
+}
+
+// ==============================================
+// TEACHER MODE
+// ==============================================
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById(`tab-${name}`).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function renderTeacherTables() {
+  renderSubjectsTable();
+  renderVerbsTable();
+}
+
+function renderSubjectsTable() {
+  const tbody = document.getElementById('subjects-table');
+  if (!tbody) return;
+  tbody.innerHTML = DATA.subjects.map(s => `
+    <tr>
+      <td><strong>${s.text}</strong></td>
+      <td><span class="chip">${s.signature}</span></td>
+      <td><button class="btn btn-danger btn-small" onclick="deleteSubject('${s.id}')">✕</button></td>
+    </tr>`).join('');
+}
+
+function renderVerbsTable() {
+  const tbody = document.getElementById('verbs-table');
+  if (!tbody) return;
+  tbody.innerHTML = DATA.verbs.map(v => `
+    <tr>
+      <td><strong>${v.display}</strong>${v.infinitive ? `<br><span style="font-size:0.75rem;color:var(--text-muted)">${v.infinitive}</span>` : ''}</td>
+      <td><span class="tense-badge ${TENSE_BADGE_CLASS[v.tense]}">${TENSE_NAMES[v.tense]}</span></td>
+      <td><span class="chip">${v.signature}</span></td>
+      <td><span class="chip ${v.levelTag}">${v.levelTag}</span></td>
+      <td><button class="btn btn-danger btn-small" onclick="deleteVerb('${v.id}')">✕</button></td>
+    </tr>`).join('');
+}
+
+function addSubject() {
+  const text = document.getElementById('new-subject-text').value.trim();
+  const sig = document.getElementById('new-subject-sig').value;
+  if (!text) return;
+  const id = 'sc' + Date.now();
+  DATA.subjects.push({ id, text, signature: sig });
+  saveData();
+  document.getElementById('new-subject-text').value = '';
+  renderSubjectsTable();
+}
+
+function deleteSubject(id) {
+  DATA.subjects = DATA.subjects.filter(s => s.id !== id);
+  saveData();
+  renderSubjectsTable();
+}
+
+function addVerb() {
+  const display = document.getElementById('new-verb-display').value.trim();
+  const inf = document.getElementById('new-verb-inf').value.trim();
+  const tense = document.getElementById('new-verb-tense').value;
+  const sig = document.getElementById('new-verb-sig').value;
+  const level = document.getElementById('new-verb-level').value;
+  const aux = document.getElementById('new-verb-aux').value;
+  if (!display) return;
+  const id = 'vc' + Date.now();
+  const verb = { id, display, tense, signature: sig, levelTag: level, infinitive: inf };
+  if (aux) verb.aux = aux;
+  DATA.verbs.push(verb);
+  saveData();
+  document.getElementById('new-verb-display').value = '';
+  document.getElementById('new-verb-inf').value = '';
+  renderVerbsTable();
+}
+
+function deleteVerb(id) {
+  DATA.verbs = DATA.verbs.filter(v => v.id !== id);
+  saveData();
+  renderVerbsTable();
+}
+
+function exportData() {
+  const json = JSON.stringify(DATA, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'cartes-du-temps-data.json'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData() {
+  const raw = document.getElementById('import-json').value.trim();
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed.subjects || !parsed.verbs) throw new Error('Format invalide');
+    DATA = parsed;
+    saveData();
+    renderTeacherTables();
+    alert('✓ Données importées avec succès !');
+    document.getElementById('import-json').value = '';
+  } catch(e) {
+    alert('❌ Erreur : ' + e.message);
+  }
+}
+
+function resetToDefaults() {
+  if (!confirm('Réinitialiser les données par défaut ? Vos modifications seront perdues.')) return;
+  DATA = getDefaultData();
+  saveData();
+  renderTeacherTables();
+  alert('✓ Données réinitialisées !');
+}
+
+function resetGame() {
+  if (!confirm('Réinitialiser la partie en cours ?')) return;
+  GAME = null;
+  saveGame();
+  alert('✓ Partie réinitialisée !');
+}
+
+// ==============================================
+// START
+// ==============================================
+init();
+</script>
+</body>
+</html>
