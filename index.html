@@ -279,10 +279,10 @@
   .tense-badge {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 4px 12px;
+    gap: 4px;
+    padding: 2px 8px;
     border-radius: 20px;
-    font-size: 0.8rem;
+    font-size: 0.72rem;
     font-weight: 700;
   }
 
@@ -293,100 +293,161 @@
 
   /* GAME SCREEN */
   #screen-game {
-    min-height: 100vh;
-    padding-bottom: 40px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
 
   .game-main {
-    max-width: 900px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 6px 10px 4px;
+    gap: 5px;
+    max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
-    padding: 16px;
+    box-sizing: border-box;
+  }
+
+  .game-top {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   .subject-display {
+    flex: 1;
     text-align: center;
-    padding: 24px;
+    padding: 6px 12px;
     background: linear-gradient(135deg, rgba(245,166,35,0.15), rgba(233,69,96,0.15));
     border: 2px solid rgba(245,166,35,0.3);
-    border-radius: 20px;
-    margin-bottom: 16px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
   }
 
   .subject-label {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     font-weight: 800;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--accent2);
-    margin-bottom: 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .subject-word {
     font-family: 'Baloo 2', sans-serif;
-    font-size: 2.5rem;
+    font-size: 1.7rem;
     font-weight: 800;
     color: var(--text);
+    line-height: 1;
   }
 
   .subject-signature {
-    font-size: 0.85rem;
+    font-size: 0.72rem;
     color: var(--text-muted);
-    margin-top: 4px;
+  }
+
+  .timer-compact {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    min-width: 58px;
+  }
+
+  .timer-text {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--accent2);
+    line-height: 1;
   }
 
   .timer-bar {
-    height: 8px;
+    width: 58px;
+    height: 5px;
     background: rgba(255,255,255,0.1);
-    border-radius: 4px;
+    border-radius: 3px;
     overflow: hidden;
-    margin-bottom: 12px;
   }
 
   .timer-fill {
     height: 100%;
-    border-radius: 4px;
+    border-radius: 3px;
     transition: width 1s linear, background 1s;
     background: var(--success);
   }
 
-  .timer-text {
-    text-align: center;
-    font-family: 'Baloo 2', sans-serif;
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: var(--accent2);
-    margin-bottom: 12px;
+  .game-info-row {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
   }
 
   .tenses-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-    margin-bottom: 16px;
+    gap: 5px;
+    flex: 1;
+  }
+
+  .pioche-info {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .pioche-chip {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: rgba(255,255,255,0.05);
+    border-radius: 6px;
+    padding: 2px 8px;
+    white-space: nowrap;
   }
 
   .players-grid {
+    flex: 1;
     display: grid;
-    gap: 12px;
+    gap: 6px;
+    min-height: 0;
+    overflow: hidden;
     grid-template-columns: 1fr;
   }
 
-  @media (min-width: 640px) {
-    .players-grid.players-2, .players-grid.players-4 {
-      grid-template-columns: 1fr 1fr;
-    }
-    .players-grid.players-3 {
-      grid-template-columns: 1fr 1fr 1fr;
-    }
+  .players-grid.players-2 { grid-template-columns: 1fr 1fr; }
+  .players-grid.players-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .players-grid.players-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+
+  .game-bottom-bar {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 4px 0 2px;
   }
 
   .player-zone {
     background: var(--surface);
     border: 2px solid rgba(255,255,255,0.08);
-    border-radius: 18px;
+    border-radius: 14px;
     overflow: hidden;
     transition: border-color 0.3s;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
   }
 
   .player-zone.posed { border-color: var(--success); }
@@ -397,63 +458,77 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 16px;
+    padding: 6px 10px;
     background: rgba(255,255,255,0.04);
     border-bottom: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
   }
 
   .player-name-row {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
   }
 
-  .player-emoji { font-size: 1.4rem; }
+  .player-emoji { font-size: 1.1rem; }
 
   .player-name {
     font-weight: 800;
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 
   .player-score {
     font-family: 'Baloo 2', sans-serif;
-    font-size: 1.6rem;
+    font-size: 1.3rem;
     font-weight: 800;
     color: var(--accent2);
   }
 
   .player-status {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     font-weight: 700;
-    padding: 3px 10px;
+    padding: 2px 8px;
     border-radius: 20px;
-    margin-top: 2px;
+    margin-top: 1px;
   }
 
   .status-waiting { background: rgba(255,255,255,0.08); color: var(--text-muted); }
   .status-posed { background: rgba(72,187,120,0.2); color: var(--success); }
   .status-passed { background: rgba(160,174,192,0.2); color: var(--text-muted); }
 
-  .player-body { padding: 12px 16px; }
+  .player-body {
+    padding: 6px 10px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    min-height: 0;
+  }
 
   .hand-cards {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin: 10px 0;
+    gap: 5px;
+    margin: 4px 0;
+    align-content: flex-start;
+    flex: 1;
+    min-height: 0;
   }
 
   .verb-card {
     background: var(--card);
     border: 2px solid rgba(255,255,255,0.15);
-    border-radius: 12px;
-    padding: 10px 14px;
+    border-radius: 10px;
+    padding: 8px 10px;
     cursor: pointer;
     transition: all 0.2s;
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 1rem;
     text-align: center;
+    flex: 1 1 90px;
     min-width: 80px;
+    max-width: 140px;
   }
 
   .verb-card:hover {
@@ -480,12 +555,12 @@
   }
 
   .verb-card-tense {
-    font-size: 0.65rem;
+    font-size: 0.72rem;
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     opacity: 0.6;
-    margin-top: 2px;
+    margin-top: 4px;
   }
 
   .hand-hidden {
@@ -496,25 +571,26 @@
     font-size: 0.9rem;
   }
 
-  .player-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .player-actions { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; flex-shrink: 0; }
 
   .result-zone {
-    padding: 10px 0;
+    padding: 4px 0;
+    flex-shrink: 0;
   }
 
   .result-item {
     display: flex;
     align-items: flex-start;
-    gap: 10px;
-    padding: 10px;
+    gap: 6px;
+    padding: 6px 8px;
     background: rgba(255,255,255,0.04);
-    border-radius: 10px;
-    margin-bottom: 8px;
-    font-size: 0.9rem;
+    border-radius: 8px;
+    margin-bottom: 4px;
+    font-size: 0.78rem;
   }
 
-  .result-icon { font-size: 1.2rem; flex-shrink: 0; }
-  .result-text { line-height: 1.4; color: var(--text-muted); }
+  .result-icon { font-size: 1rem; flex-shrink: 0; }
+  .result-text { line-height: 1.3; color: var(--text-muted); }
   .result-text strong { color: var(--text); }
 
   /* MODAL */
@@ -888,43 +964,46 @@
   <div class="nav-bar">
     <div class="nav-title">🃏 Les Cartes du Temps</div>
     <div class="nav-actions">
+      <span class="round-num" id="round-display" style="color:var(--text-muted);font-size:0.8rem;font-weight:700"></span>
       <button class="btn btn-ghost btn-small" onclick="goHome()">🏠 Accueil</button>
       <button class="btn btn-danger btn-small" onclick="askStop()">⏹ Arrêter</button>
     </div>
   </div>
 
   <div class="game-main">
-    <div class="round-header">
-      <span class="round-num" id="round-display"></span>
-    </div>
-
     <div id="warning-banner" class="warning-banner hidden"></div>
 
-    <div id="subject-display" class="subject-display">
-      <div class="subject-label">Carte Sujet</div>
-      <div class="subject-word" id="subject-word">–</div>
-      <div class="subject-signature" id="subject-sig"></div>
+    <!-- Ligne haute : sujet + timer -->
+    <div class="game-top">
+      <div id="subject-display" class="subject-display">
+        <div class="subject-label">Sujet</div>
+        <div class="subject-word" id="subject-word">–</div>
+        <div class="subject-signature" id="subject-sig"></div>
+      </div>
+      <div class="timer-compact">
+        <div class="timer-text" id="timer-text">⏱ 60s</div>
+        <div class="timer-bar"><div class="timer-fill" id="timer-fill" style="width:100%"></div></div>
+      </div>
     </div>
 
-    <div class="tenses-row" id="active-tenses-row"></div>
-
-    <div style="margin-bottom:16px">
-      <div class="timer-text" id="timer-text">⏱ 60s</div>
-      <div class="timer-bar"><div class="timer-fill" id="timer-fill" style="width:100%"></div></div>
+    <!-- Infos : temps actifs + pioche -->
+    <div class="game-info-row">
+      <div class="tenses-row" id="active-tenses-row"></div>
+      <div class="pioche-info">
+        <span class="pioche-chip">📚 <span id="pioche-subjects-count">0</span></span>
+        <span class="pioche-chip">🃏 <span id="discard-count">0</span></span>
+      </div>
     </div>
 
-    <div class="pioche-info">
-      <span class="pioche-chip">📚 Sujets restants: <span id="pioche-subjects-count">0</span></span>
-      <span class="pioche-chip">🃏 Défausse: <span id="discard-count">0</span></span>
-    </div>
-
+    <!-- Grille joueurs -->
     <div class="players-grid" id="players-grid"></div>
 
-    <div style="margin-top:20px;display:flex;flex-direction:column;gap:12px;align-items:center">
-      <button id="btn-reveal" class="btn btn-success btn-large hidden" onclick="revealAndCorrect()">
+    <!-- Boutons bas -->
+    <div class="game-bottom-bar">
+      <button id="btn-reveal" class="btn btn-success hidden" onclick="revealAndCorrect()" style="font-size:1rem;padding:10px 28px;border-radius:14px">
         🔍 Révéler et corriger
       </button>
-      <button id="btn-next" class="btn btn-primary btn-large hidden" onclick="nextRound()">
+      <button id="btn-next" class="btn btn-primary hidden" onclick="nextRound()" style="font-size:1rem;padding:10px 28px;border-radius:14px">
         ➡️ Manche suivante
       </button>
     </div>
@@ -1416,9 +1495,8 @@ function getActiveTenses() {
 }
 
 function getHandSize(activeTensesCount) {
-  if (activeTensesCount === 1) return 5;
-  if (activeTensesCount <= 3) return 4;
-  return 3;
+  // Taille de main fixe : 6 cartes par joueur
+  return 6;
 }
 
 function shuffle(arr) {
@@ -1726,13 +1804,19 @@ function nextRound() {
   GAME.phase = 'playing';
   GAME.round++;
 
-  // Replenish hands
-  // Recycle verb discard if needed
-  if (GAME.verbDeck.length < GAME.players.length) {
+  // Remettre toutes les cartes en main dans la défausse avant de redistribuer
+  GAME.players.forEach(p => {
+    GAME.verbDiscard.push(...p.hand);
+    p.hand = [];
+  });
+
+  // Recycler la défausse si la pioche est trop petite
+  if (GAME.verbDeck.length < GAME.players.length * GAME.handSize) {
     GAME.verbDeck = shuffle([...GAME.verbDeck, ...GAME.verbDiscard]);
     GAME.verbDiscard = [];
   }
 
+  // Distribuer 6 cartes entièrement nouvelles à chaque joueur
   GAME.players.forEach(p => {
     p.posed = false;
     p.passed = false;
@@ -1772,7 +1856,8 @@ function showWinner() {
 function renderGame() {
   if (!GAME) return;
   // Round
-  document.getElementById('round-display').textContent = `Manche ${GAME.round}`;
+  const rd = document.getElementById('round-display');
+  if (rd) rd.textContent = `Manche ${GAME.round}`;
 
   // Warning
   const wb = document.getElementById('warning-banner');
